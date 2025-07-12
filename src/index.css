@@ -1,26 +1,60 @@
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-/* Custom CSS for Crop Deal System */
+/* Custom CSS for Crop Deal System with Enhanced Animations */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
 }
 
+/* Navbar Enhancements */
 .navbar-brand {
   font-weight: bold;
   color: #28a745 !important;
+  transition: transform 0.3s ease;
 }
 
+.navbar-brand:hover {
+  transform: scale(1.05);
+}
+
+/* Card Animations */
 .card {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: none;
   margin-bottom: 20px;
-  transition: transform 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
 }
 
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Button Animations */
+.btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn:hover::before {
+  width: 200%;
+  height: 200%;
 }
 
 .btn-primary {
@@ -31,31 +65,95 @@ body {
 .btn-primary:hover {
   background-color: #218838;
   border-color: #1e7e34;
+  transform: translateY(-2px);
 }
 
+/* Hero Section */
 .hero-section {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
   padding: 80px 0;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="white" stop-opacity=".1"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient></defs><circle cx="10" cy="10" r="10" fill="url(%23a)"/><circle cx="30" cy="5" r="8" fill="url(%23a)"/><circle cx="60" cy="15" r="6" fill="url(%23a)"/><circle cx="80" cy="10" r="12" fill="url(%23a)"/></svg>');
+  animation: float 20s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* Dashboard Header */
 .dashboard-header {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
   padding: 30px 0;
   margin-bottom: 30px;
+  position: relative;
 }
 
+.dashboard-header::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(45deg, transparent 49%, #f8f9fa 50%);
+}
+
+/* Crop Type Badge Animation */
 .crop-type-badge {
   font-size: 0.8em;
   padding: 4px 8px;
+  animation: pulse-glow 2s infinite;
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.3); }
+  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.6); }
+}
+
+/* Booking Status Animations */
 .booking-status {
   font-weight: bold;
+  position: relative;
+  overflow: hidden;
 }
 
+.booking-status.confirmed {
+  color: #28a745;
+  animation: success-bounce 0.6s ease-out;
+}
+
+.booking-status.pending {
+  color: #ffc107;
+  animation: warning-pulse 1.5s infinite;
+}
+
+@keyframes success-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes warning-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Loading Spinner */
 .loading-spinner {
   display: flex;
   justify-content: center;
@@ -63,6 +161,16 @@ body {
   height: 200px;
 }
 
+.spinner-grow {
+  animation: spinner-grow 1.5s ease-infinite;
+}
+
+@keyframes spinner-grow {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Message Animations */
 .error-message {
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
@@ -70,6 +178,7 @@ body {
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 20px;
+  animation: shake 0.5s ease-in-out;
 }
 
 .success-message {
@@ -79,32 +188,172 @@ body {
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 20px;
+  animation: slide-in 0.5s ease-out;
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes slide-in {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Form Section */
 .form-section {
   background: white;
   padding: 30px;
   border-radius: 10px;
   margin-bottom: 30px;
+  transition: all 0.3s ease;
 }
 
+.form-section:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats Card Animations */
 .stats-card {
   background: white;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
   margin-bottom: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #28a745, transparent);
+  transition: left 0.5s ease;
+}
+
+.stats-card:hover::before {
+  left: 100%;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
 }
 
 .stats-number {
   font-size: 2rem;
   font-weight: bold;
   color: #28a745;
+  animation: counter-up 1s ease-out;
 }
 
+@keyframes counter-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Footer */
 .footer {
   background-color: #343a40;
   color: white;
   padding: 40px 0;
   margin-top: 50px;
+}
+
+/* Tab Animations */
+.nav-tabs .nav-link {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-tabs .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: #28a745;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-tabs .nav-link.active::after,
+.nav-tabs .nav-link:hover::after {
+  width: 100%;
+}
+
+/* AI Assistant Animations */
+.ai-assistant {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  animation: float-assistant 3s ease-in-out infinite;
+}
+
+@keyframes float-assistant {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.ai-chat-bubble {
+  animation: bubble-appear 0.3s ease-out;
+}
+
+@keyframes bubble-appear {
+  0% { transform: scale(0) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Icon Animations */
+.icon-spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.icon-bounce {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+  40%, 43% { transform: translateY(-10px); }
+  70% { transform: translateY(-5px); }
+  90% { transform: translateY(-2px); }
+}
+
+/* Fade In Animation for Page Content */
+.fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 50px 0;
+  }
+  
+  .stats-number {
+    font-size: 1.5rem;
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+  }
 }

@@ -11,7 +11,7 @@ import DealerRegistration from './pages/DealerRegistration';
 import FarmerDashboard from './pages/FarmerDashboard';
 import DealerDashboard from './pages/DealerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
-import ProtectedRoute from './components/common/ProtectedRoute';
+// import ProtectedRoute from './components/common/ProtectedRoute';
 import Footer from './components/common/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -29,27 +29,30 @@ function App() {
               <Route path="/register/dealer" element={<DealerRegistration />} />
               <Route 
                 path="/farmer/dashboard" 
-                element={
-                  <ProtectedRoute role="farmer">
-                    <FarmerDashboard />
-                  </ProtectedRoute>
-                } 
+                element={<FarmerDashboard />}
+                // element={
+                //   <ProtectedRoute role="farmer">
+                //     <FarmerDashboard />
+                //   </ProtectedRoute>
+                // } 
               />
               <Route 
                 path="/dealer/dashboard" 
-                element={
-                  <ProtectedRoute role="dealer">
-                    <DealerDashboard />
-                  </ProtectedRoute>
-                } 
+                element={<DealerDashboard />}
+                // element={
+                //   <ProtectedRoute role="dealer">
+                //     <DealerDashboard />
+                //   </ProtectedRoute>
+                // } 
               />
               <Route 
                 path="/admin/dashboard" 
-                element={
-                  <ProtectedRoute role="admin">
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
+                element={<AdminDashboard />}
+                // element={
+                //   <ProtectedRoute role="admin">
+                //     <AdminDashboard />
+                //   </ProtectedRoute>
+                // } 
               />
             </Routes>
           </main>
