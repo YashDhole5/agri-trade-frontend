@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
-import { Button, Alert, Card, Spinner } from 'react-bootstrap';
+import { Button, Alert, Card, Spinner, Row, Col, Badge } from 'react-bootstrap';
 import axios from 'axios';
 
-const PaymentButton = ({ amount, bookingId, onSuccess }) => {
+const PaymentButton = ({ amount, bookingId, farmerDetails, bookingDetails, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
@@ -12,25 +13,17 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
     setError('');
 
     try {
-      // In a real implementation, you would:
-      // 1. Create payment order on your backend
-      // 2. Initialize Razorpay with the order details
-      // 3. Handle payment success/failure
-      
       if (paymentMethod === 'razorpay') {
-        // Razorpay implementation
         const options = {
-          key: 'rzp_test_your_key_here', // Replace with your Razorpay key
-          amount: amount * 100, // Amount in paise
+          key: 'rzp_test_your_key_here',
+          amount: amount * 100,
           currency: 'INR',
           name: 'Crop Deal System',
-          description: `Payment for Booking #${bookingId}`,
-          image: '/logo.png', // Optional: Add your logo
-          order_id: '', // This should come from your backend
+          description: `Payment for ${bookingDetails?.cropName || 'Crop'} - ${bookingDetails?.quantity || 0} KG`,
+          image: '/logo.png',
+          order_id: '',
           handler: function (response) {
             console.log('Payment successful:', response);
-            // Here you would verify payment on backend
-            // await verifyPayment(response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature);
             onSuccess();
           },
           prefill: {
@@ -40,7 +33,10 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
           },
           notes: {
             booking_id: bookingId,
-            payment_for: 'crop_booking'
+            farmer_name: farmerDetails?.name || '',
+            crop_name: bookingDetails?.cropName || '',
+            quantity: bookingDetails?.quantity || 0,
+            delivery_address: bookingDetails?.deliveryAddress || ''
           },
           theme: {
             color: '#28a745'
@@ -53,7 +49,6 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
           }
         };
 
-        // Check if Razorpay is loaded
         if (typeof window.Razorpay !== 'undefined') {
           const rzp = new window.Razorpay(options);
           
@@ -64,10 +59,17 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
           
           rzp.open();
         } else {
-          // Fallback for demo - simulate successful payment
+          // Enhanced demo simulation
           setTimeout(() => {
             const confirmed = window.confirm(
-              `Demo Payment Simulation\n\nAmount: ₹${amount}\nBooking ID: ${bookingId}\n\nClick OK to simulate successful payment, Cancel to simulate failure.`
+              `🏦 PAYMENT SIMULATION\n\n` +
+              `💰 Amount: ₹${amount}\n` +
+              `📋 Booking ID: ${bookingId}\n` +
+              `👨‍🌾 Farmer: ${farmerDetails?.name || 'Unknown'}\n` +
+              `🌾 Crop: ${bookingDetails?.cropName || 'Unknown'} (${bookingDetails?.quantity || 0} KG)\n` +
+              `📍 Delivery: ${bookingDetails?.deliveryAddress?.substring(0, 50) || 'Unknown'}...\n\n` +
+              `Click OK to simulate successful payment\n` +
+              `Click Cancel to simulate payment failure`
             );
             
             if (confirmed) {
@@ -76,10 +78,9 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
               setError('Payment simulation cancelled');
             }
             setLoading(false);
-          }, 1000);
+          }, 1500);
         }
       } else {
-        // Other payment methods can be implemented here
         setError('Payment method not implemented yet');
       }
     } catch (error) {
@@ -90,23 +91,66 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
     setLoading(false);
   };
 
+  const handleDirectTransfer = () => {
+    const bankDetails = farmerDetails?.bankAccount;
+    if (!bankDetails) {
+      setError('Farmer bank details not available');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `💳 DIRECT BANK TRANSFER\n\n` +
+      `Transfer ₹${amount} directly to farmer's account:\n\n` +
+      `🏦 Bank: ${bankDetails.bankName}\n` +
+      `📋 Account: ${bankDetails.accountNumber}\n` +
+      `🔢 IFSC: ${bankDetails.ifscCode}\n` +
+      `👨‍🌾 Beneficiary: ${farmerDetails.name}\n\n` +
+      `After transfer, please share transaction ID with the farmer.\n\n` +
+      `Click OK to copy bank details to clipboard`
+    );
+
+    if (confirmed) {
+      const bankDetailsText = `Bank Transfer Details:\nBank: ${bankDetails.bankName}\nAccount: ${bankDetails.accountNumber}\nIFSC: ${bankDetails.ifscCode}\nBeneficiary: ${farmerDetails.name}\nAmount: ₹${amount}`;
+      
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(bankDetailsText).then(() => {
+          alert('Bank details copied to clipboard!');
+        });
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = bankDetailsText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Bank details copied to clipboard!');
+      }
+    }
+  };
+
   const handleUPIPayment = () => {
-    setPaymentMethod('upi');
-    // Simulate UPI payment
-    const upiId = 'farmer@paytm'; // This would come from farmer's profile
-    const upiLink = `upi://pay?pa=${upiId}&pn=Crop Deal System&am=${amount}&cu=INR&tn=Payment for Booking ${bookingId}`;
+    const upiId = `${farmerDetails?.name?.toLowerCase().replace(/\s+/g, '')}@paytm` || 'farmer@paytm';
+    const upiLink = `upi://pay?pa=${upiId}&pn=${farmerDetails?.name || 'Crop Deal System'}&am=${amount}&cu=INR&tn=Payment for Booking ${bookingId}`;
     
     const confirmed = window.confirm(
-      `UPI Payment\n\nAmount: ₹${amount}\nUPI ID: ${upiId}\n\nClick OK to open UPI app (Demo), or Cancel to use Razorpay.`
+      `📱 UPI PAYMENT\n\n` +
+      `Pay ₹${amount} via UPI to:\n` +
+      `🆔 UPI ID: ${upiId}\n` +
+      `👨‍🌾 Name: ${farmerDetails?.name || 'Farmer'}\n` +
+      `📝 Reference: Booking #${bookingId}\n\n` +
+      `Click OK to open UPI app (Demo Mode)`
     );
     
     if (confirmed) {
-      // In a real app, this would open the UPI app
       setTimeout(() => {
-        onSuccess();
+        const success = window.confirm('UPI Payment Demo: Click OK for success, Cancel for failure');
+        if (success) {
+          onSuccess();
+        } else {
+          setError('UPI payment was cancelled or failed');
+        }
       }, 2000);
-    } else {
-      setPaymentMethod('razorpay');
     }
   };
 
@@ -114,15 +158,45 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
     <div>
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')}>
+          <i className="bi bi-exclamation-triangle me-2"></i>
           {error}
         </Alert>
       )}
       
       <Card className="mb-3">
-        <Card.Header>
-          <h6>💳 Payment Options</h6>
+        <Card.Header className="bg-success text-white">
+          <h6 className="mb-0">💳 Complete Your Payment</h6>
         </Card.Header>
         <Card.Body>
+          {/* Payment Summary */}
+          <Row className="mb-3">
+            <Col md={6}>
+              <h6>Payment Summary</h6>
+              <div className="mb-2">
+                <strong>Amount to Pay:</strong> 
+                <span className="text-success ms-2 fs-5">₹{amount}</span>
+              </div>
+              <div className="mb-2">
+                <strong>Booking ID:</strong> #{bookingId}
+              </div>
+            </Col>
+            <Col md={6}>
+              <h6>Payment To</h6>
+              <div className="mb-2">
+                <strong>Farmer:</strong> {farmerDetails?.name || 'Unknown'}
+              </div>
+              <div className="mb-2">
+                <Badge bg="success">Verified Farmer</Badge>
+                <Badge bg="warning" className="ms-2">
+                  ⭐ {farmerDetails?.rating || 'N/A'} Rating
+                </Badge>
+              </div>
+            </Col>
+          </Row>
+
+          <hr />
+
+          {/* Payment Methods */}
           <div className="d-grid gap-2">
             {/* Primary Payment Button */}
             <Button 
@@ -146,37 +220,64 @@ const PaymentButton = ({ amount, bookingId, onSuccess }) => {
             </Button>
 
             {/* Alternative Payment Methods */}
-            <Button 
-              variant="outline-primary" 
-              onClick={handleUPIPayment}
-              disabled={loading}
-            >
-              <i className="bi bi-phone me-2"></i>
-              Pay with UPI (Demo)
-            </Button>
+            <Row>
+              <Col md={6}>
+                <Button 
+                  variant="outline-primary" 
+                  onClick={handleUPIPayment}
+                  disabled={loading}
+                  className="w-100"
+                >
+                  <i className="bi bi-phone me-2"></i>
+                  Pay with UPI
+                </Button>
+              </Col>
+              <Col md={6}>
+                <Button 
+                  variant="outline-secondary" 
+                  onClick={handleDirectTransfer}
+                  disabled={loading}
+                  className="w-100"
+                >
+                  <i className="bi bi-bank me-2"></i>
+                  Direct Bank Transfer
+                </Button>
+              </Col>
+            </Row>
           </div>
           
           <div className="text-center mt-3">
             <small className="text-muted">
               <i className="bi bi-shield-check me-1"></i>
-              Secure payment powered by Razorpay
-            </small>
-          </div>
-          
-          {/* Payment Methods Accepted */}
-          <div className="text-center mt-2">
-            <small className="text-muted">
-              We accept: Credit Card, Debit Card, Net Banking, UPI, Wallets
+              Secure payment powered by Razorpay • SSL Encrypted
             </small>
           </div>
         </Card.Body>
       </Card>
 
-      {/* Payment Security Info */}
+      {/* Farmer Contact Info for Payment Queries */}
       <Alert variant="info" className="small">
+        <Row>
+          <Col md={8}>
+            <strong>Need help with payment?</strong> You can contact the farmer directly:
+            <br />
+            📞 {farmerDetails?.mobile || 'Not available'}
+            📧 {farmerDetails?.email || 'Not available'}
+          </Col>
+          <Col md={4} className="text-end">
+            <Button variant="outline-info" size="sm">
+              <i className="bi bi-chat-dots me-1"></i>
+              Contact Farmer
+            </Button>
+          </Col>
+        </Row>
+      </Alert>
+
+      {/* Payment Security Info */}
+      <Alert variant="light" className="small border">
         <i className="bi bi-info-circle me-2"></i>
-        <strong>Payment Security:</strong> All payments are processed securely through Razorpay. 
-        Your card details are encrypted and never stored on our servers.
+        <strong>Payment Security:</strong> All payments are processed securely. Your card details are encrypted and never stored on our servers.
+        Money will be released to the farmer only after successful delivery confirmation.
       </Alert>
     </div>
   );

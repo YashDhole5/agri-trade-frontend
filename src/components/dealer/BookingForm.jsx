@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, Alert, Card, InputGroup } from 'react-bootstrap';
 import PaymentButton from './PaymentButton';
@@ -16,6 +15,7 @@ const BookingForm = ({ crop, onComplete }) => {
   const [errors, setErrors] = useState({});
   const [bookingCreated, setBookingCreated] = useState(false);
   const [bookingId, setBookingId] = useState(null);
+  const [farmerDetails, setFarmerDetails] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,18 +83,7 @@ const BookingForm = ({ crop, onComplete }) => {
     setLoading(true);
 
     try {
-      // Replace with your actual API endpoint
-      // const response = await axios.post('/api/dealer/bookings', {
-      //   cropId: crop.id,
-      //   quantity: formData.quantity,
-      //   notes: formData.notes,
-      //   deliveryAddress: formData.deliveryAddress,
-      //   preferredDeliveryDate: formData.preferredDeliveryDate,
-      //   contactNumber: formData.contactNumber,
-      //   totalAmount: finalAmount
-      // });
-      
-      // Mock booking creation
+      // Mock booking creation with farmer details
       const bookingData = {
         id: Date.now(),
         cropId: crop.id,
@@ -107,8 +96,27 @@ const BookingForm = ({ crop, onComplete }) => {
           contactNumber: formData.contactNumber
         }
       };
+
+      // Mock farmer details fetch
+      const mockFarmerDetails = {
+        id: crop.farmerId || 1,
+        name: crop.farmerName,
+        email: 'farmer@example.com',
+        mobile: '+91 9876543210',
+        location: crop.location,
+        bankAccount: {
+          accountNumber: 'XXXX-XXXX-1234',
+          ifscCode: 'HDFC0001234',
+          bankName: 'HDFC Bank'
+        },
+        rating: 4.5,
+        totalCrops: 15,
+        joinedDate: '2023-06-15',
+        address: `Village Rampur, ${crop.location}, India - 123456`
+      };
       
       setBookingId(bookingData.id);
+      setFarmerDetails(mockFarmerDetails);
       setBookingCreated(true);
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -127,9 +135,67 @@ const BookingForm = ({ crop, onComplete }) => {
       <div>
         <Alert variant="success">
           <h5>🎉 Booking Created Successfully!</h5>
-          <p>Your booking has been created. Please proceed with payment to confirm your order.</p>
+          <p>Your booking has been created. Below are the farmer details and payment options.</p>
         </Alert>
+
+        {/* Farmer Information Card */}
+        <Card className="mb-3 border-info">
+          <Card.Header className="bg-light">
+            <h6 className="mb-0">👨‍🌾 Farmer Information</h6>
+          </Card.Header>
+          <Card.Body>
+            <Row>
+              <Col md={6}>
+                <div className="mb-3">
+                  <h6 className="text-success">{farmerDetails.name}</h6>
+                  <div className="mb-2">
+                    <i className="bi bi-envelope me-2 text-muted"></i>
+                    <span>{farmerDetails.email}</span>
+                  </div>
+                  <div className="mb-2">
+                    <i className="bi bi-telephone me-2 text-muted"></i>
+                    <span>{farmerDetails.mobile}</span>
+                  </div>
+                  <div className="mb-2">
+                    <i className="bi bi-geo-alt me-2 text-muted"></i>
+                    <span>{farmerDetails.address}</span>
+                  </div>
+                  <div className="mb-2">
+                    <i className="bi bi-star-fill me-2 text-warning"></i>
+                    <span>{farmerDetails.rating}/5 Rating</span>
+                  </div>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="mb-3">
+                  <h6>Bank Details</h6>
+                  <div className="mb-2">
+                    <strong>Bank:</strong> {farmerDetails.bankAccount.bankName}
+                  </div>
+                  <div className="mb-2">
+                    <strong>Account:</strong> {farmerDetails.bankAccount.accountNumber}
+                  </div>
+                  <div className="mb-2">
+                    <strong>IFSC:</strong> {farmerDetails.bankAccount.ifscCode}
+                  </div>
+                  <div className="mt-3">
+                    <small className="text-muted">
+                      <i className="bi bi-calendar me-1"></i>
+                      Farmer since: {new Date(farmerDetails.joinedDate).toLocaleDateString()}
+                    </small>
+                    <br />
+                    <small className="text-muted">
+                      <i className="bi bi-box me-1"></i>
+                      Total crops listed: {farmerDetails.totalCrops}
+                    </small>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
         
+        {/* Booking Summary */}
         <Card className="mb-3">
           <Card.Header>
             <h6>📋 Booking Summary</h6>
@@ -142,16 +208,16 @@ const BookingForm = ({ crop, onComplete }) => {
                   <span><strong>{crop.name}</strong></span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span>Farmer:</span>
-                  <span>{crop.farmerName}</span>
+                  <span>Type:</span>
+                  <span className="text-capitalize">{crop.type}</span>
                 </div>
                 <div className="d-flex justify-content-between mb-2">
-                  <span>Location:</span>
-                  <span>{crop.location}</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Quantity:</span>
+                  <span>Quantity Booked:</span>
                   <span>{formData.quantity} KG</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Your Contact:</span>
+                  <span>{formData.contactNumber}</span>
                 </div>
               </Col>
               <Col md={6}>
@@ -176,6 +242,35 @@ const BookingForm = ({ crop, onComplete }) => {
                 </div>
               </Col>
             </Row>
+
+            {/* Delivery Information */}
+            <hr />
+            <Row>
+              <Col md={6}>
+                <h6>📦 Delivery Information</h6>
+                <div className="mb-2">
+                  <strong>Address:</strong>
+                  <div className="text-muted">{formData.deliveryAddress}</div>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="mb-2">
+                  <strong>Preferred Date:</strong>
+                  <div className="text-muted">
+                    {formData.preferredDeliveryDate ? 
+                      new Date(formData.preferredDeliveryDate).toLocaleDateString() : 
+                      'Standard delivery (3-5 business days)'
+                    }
+                  </div>
+                </div>
+                {formData.notes && (
+                  <div className="mb-2">
+                    <strong>Special Instructions:</strong>
+                    <div className="text-muted">{formData.notes}</div>
+                  </div>
+                )}
+              </Col>
+            </Row>
             
             {deliveryCharges === 0 && (
               <Alert variant="success" className="mt-3 mb-0">
@@ -185,9 +280,44 @@ const BookingForm = ({ crop, onComplete }) => {
           </Card.Body>
         </Card>
 
+        {/* Contact Farmer Option */}
+        <Card className="mb-3 border-primary">
+          <Card.Body className="text-center">
+            <h6>💬 Need to Contact the Farmer?</h6>
+            <p className="text-muted mb-3">You can reach out to discuss delivery details or crop quality</p>
+            <Row>
+              <Col md={4}>
+                <Button variant="outline-success" size="sm" className="w-100 mb-2">
+                  <i className="bi bi-telephone me-1"></i>
+                  Call {farmerDetails.name}
+                </Button>
+              </Col>
+              <Col md={4}>
+                <Button variant="outline-primary" size="sm" className="w-100 mb-2">
+                  <i className="bi bi-envelope me-1"></i>
+                  Send Email
+                </Button>
+              </Col>
+              <Col md={4}>
+                <Button variant="outline-info" size="sm" className="w-100 mb-2">
+                  <i className="bi bi-chat-dots me-1"></i>
+                  Chat
+                </Button>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Payment Section */}
         <PaymentButton 
           amount={finalAmount}
           bookingId={bookingId}
+          farmerDetails={farmerDetails}
+          bookingDetails={{
+            cropName: crop.name,
+            quantity: formData.quantity,
+            deliveryAddress: formData.deliveryAddress
+          }}
           onSuccess={handlePaymentSuccess}
         />
       </div>
