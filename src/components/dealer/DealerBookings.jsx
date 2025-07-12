@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button } from 'react-bootstrap';
-import { User, Eye } from 'lucide-react';
+import { User, Eye, Package } from 'lucide-react';
 import PaymentButton from './PaymentButton';
 import FarmerInfoModal from './FarmerInfoModal';
 import axios from 'axios';
